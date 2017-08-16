@@ -99,10 +99,15 @@ function parseLongUrl (longUrl, msg) {
         console.log(acadYear, semester, modInfo)
         toSend += 'Success!'
         var parsedMods = parseModStr(modInfo)
+        var promises = []
         for (var i = 0; i < parsedMods.length; i++) {
           console.log(parsedMods[i])
-          // TODO: using nusmodsAPI.getModuleInformation, get the time slots, parse it and store in database
+          promises.push(nusmodsApi.getModuleInformation(acadYear, semester, parsedMods[i].moduleCode))
         }
+        Promise.all(promises).then(values => {
+          console.log(values)
+          // TODO: from the results and parsed mods, find the time slots to add in database
+        })
       }
     }
   }
