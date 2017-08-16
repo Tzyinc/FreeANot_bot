@@ -97,11 +97,51 @@ function parseLongUrl (longUrl, msg) {
         toSend += '\nacadYear:' + acadYear
         toSend += '\nsem: ' + semester
         toSend += '\ndetails: ' + modInfo
+        var parsedMods = parseModStr(modInfo)
+        for (var i = 0; i < parsedMods.length; i++) {
+          console.log(parsedMods[i])
+        }
       }
     }
   }
   // console.log(urlSubStrs)
   bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+}
+
+function parseModStr (inputStr) {
+  var modList = []
+  var inputArr = inputStr.split('&')
+  for (var i = 0; i < inputArr.length; i++) {
+    var slotInfo = inputArr[i]
+    var moduleCode = slotInfo.split('[')[0]
+    var slotType = slotInfo.split('[').pop().split(']').shift() // returns 'two'
+    var slotValue = slotInfo.split('=').pop()
+    console.log(moduleCode, slotType, slotValue)
+    var modExists = false
+    for (var j = 0; j < modList.length; j++) {
+      var toCompareMod = modList[j]
+      if (toCompareMod.moduleCode === moduleCode) {
+        modExists = true
+        modList[j].moduleSlots.push({
+          slotType: slotType,
+          slotValue: slotValue
+        })
+      }
+    }
+    if (!modExists) {
+      var newMod = {
+        moduleCode: moduleCode,
+        moduleSlots: [
+          {
+            slotType: slotType,
+            slotValue: slotValue
+          }
+        ]
+      }
+      modList.push(newMod)
+    }
+  }
+  return modList
 }
 
 function handlePublicTest (msg) {
