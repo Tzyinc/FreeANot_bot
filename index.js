@@ -17,6 +17,7 @@ bot.on('message', (msg) => {
   }
 })
 
+// handles messages sent 1 on 1 to the bot
 function handlePrivate (msg) {
   if (msg.text.toLowerCase().indexOf('/start') === 0) {
     handlePrivateStart(msg)
@@ -27,6 +28,7 @@ function handlePrivate (msg) {
   }
 }
 
+// handles messages sent in a group chat
 function handlePublic (msg) {
   if (msg.text.toLowerCase().indexOf('/start') === 0) {
     handlePublicStart(msg)
@@ -36,7 +38,7 @@ function handlePublic (msg) {
 }
 
 function handlePublicStart (msg) {
-  // if chat record exists, add user to the chat. else create chat and add user
+  // TODO: if chat record exists, add user to the chat. else create chat and add user
   console.log(msg)
 }
 
@@ -73,18 +75,19 @@ function handlePrivateOthers (msg) {
           var toSend = 'There was some error deciphering your message, check if you\'ve copied the right url! '
           bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
         } else {
-          // console.log(longUrl)
-          parseLongUrl(longUrl, msg)
+          toSend = parseLongUrl(longUrl, msg)
+          // TODO: remove user from newusers array
+          bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
         }
       })
     }
   }
 }
 
+// converts the shortened URL into a long url, replaces escaped characters to more readable characters
 function parseLongUrl (longUrl, msg) {
-  // should update the timetable here
   var urlSubStrs = longUrl.split('/')
-  var toSend = 'your timetable:'
+  var toSend = ''
   if (urlSubStrs.length === 6) {
     if (urlSubStrs[2] === 'nusmods.com') {
       var acadYear = urlSubStrs[4]
@@ -94,20 +97,33 @@ function parseLongUrl (longUrl, msg) {
         var semester = parseModuleStrings[0].substring(3)
         var modInfo = parseModuleStrings[1].replaceAll('%5B', '[').replaceAll('%5D', ']')
         console.log(acadYear, semester, modInfo)
-        toSend += '\nacadYear:' + acadYear
-        toSend += '\nsem: ' + semester
-        toSend += '\ndetails: ' + modInfo
+        toSend += 'Success!'
         var parsedMods = parseModStr(modInfo)
         for (var i = 0; i < parsedMods.length; i++) {
           console.log(parsedMods[i])
+          // TODO: using nusmodsAPI.getModuleInformation, get the time slots, parse it and store in database
         }
       }
     }
   }
   // console.log(urlSubStrs)
-  bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+  return toSend
 }
 
+// parses the string from the url and converts into a json in the format
+/*
+{ moduleCode: 'SC2212',
+  moduleSlots:
+   [ { slotType: 'LEC', slotValue: '1' },
+     { slotType: 'TUT', slotValue: 'D1' } ] }
+{ moduleCode: 'SSS1207',
+  moduleSlots: [ { slotType: 'LEC', slotValue: 'SL1' } ] }
+{ moduleCode: 'CS2102',
+  moduleSlots:
+   [ { slotType: 'LEC', slotValue: '1' },
+     { slotType: 'TUT', slotValue: '12' } ] }
+
+*/
 function parseModStr (inputStr) {
   var modList = []
   var inputArr = inputStr.split('&')
@@ -144,6 +160,7 @@ function parseModStr (inputStr) {
   return modList
 }
 
+// unused functions for now
 function handlePublicTest (msg) {
   console.log(msg)
 }
@@ -152,6 +169,7 @@ function handlePrivateTest (msg) {
   console.log('private test!')
 }
 
+// overload for String
 String.prototype.replaceAll = function (search, replacement) { // eslint-disable-line
   var target = this
   return target.split(search).join(replacement)
