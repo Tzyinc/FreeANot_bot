@@ -101,12 +101,20 @@ function parseLongUrl (longUrl, msg) {
         var parsedMods = parseModStr(modInfo)
         var promises = []
         for (var i = 0; i < parsedMods.length; i++) {
+          console.log('printing parsedMods')
           console.log(parsedMods[i])
           promises.push(nusmodsApi.getModuleInformation(acadYear, semester, parsedMods[i].moduleCode))
         }
         Promise.all(promises).then(values => {
+          console.log('printing values')
           console.log(values)
+          for (var l = 0; l < values.length; l++) {
+            var oneValue = values[l]
+            console.log(oneValue.Timetable)
+          }
+
           // TODO: from the results and parsed mods, find the time slots to add in database
+          getTimeSlots(parsedMods, values)
         })
       }
     }
@@ -163,6 +171,53 @@ function parseModStr (inputStr) {
     }
   }
   return modList
+}
+
+function getTimeSlots (parsedMods, values) {
+  for (var j = 0; j < parsedMods.length; j++) {
+    var oneMod = parsedMods[j]
+    for (var k = 0; k < oneMod.moduleSlots.length; k++) {
+      var slotType = oneMod.moduleSlots[k].slotType
+      var slotValue = oneMod.moduleSlots[k].slotValue
+      //  find what type it is
+      slotType = getSlotType(slotType)
+      // console.log('slot type is ');
+      // console.log(slotType);
+      var timing = values[j].Timetable
+      //  get all the time associated to the slot type
+      for (var m = 0; m < timing.length; m++) {
+        var oneTimeSlot = timing[m]
+        if (oneTimeSlot.LessonType === slotType && oneTimeSlot.ClassNo === slotValue) {
+          // console.log('one time slot')
+          // console.log(oneTimeSlot)
+          // add start and time end to database
+          // var startTime = oneTimeSlot.StartTime
+          // var endTime = oneTimeSlot.EndTime
+        }
+      }
+    }
+  }
+}
+
+function getSlotType (slotType) {
+  switch (slotType) {
+    case 'LEC':
+      slotType = 'Lecture'
+      break
+    case 'TUT':
+      slotType = 'Tutorial'
+      break
+    case 'LAB':
+      slotType = 'Laboratory'
+      break
+    case 'SEM':
+      slotType = 'Seminar-Style Module Class'
+      break
+    default:
+      console.log('cannot find slot type')
+  }
+
+  return slotType
 }
 
 // unused functions for now
