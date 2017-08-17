@@ -6,7 +6,9 @@ db.serialize(function () {
   db.run('CREATE TABLE user ' +
     '(userId     INT            NOT NULL,' +
     'firstname   VARCHAR(255)   NOT NULL,' +
-    'timetable   NCHAR(40)      NOT NULL,' +
+    // need odd week timetable and even timetable
+    'oddtimetable   NCHAR(40)      NOT NULL,' +
+    'eventimetable   NCHAR(40)      NOT NULL,' +
     'username    VARCHAR(255)' +
     ')')
 
