@@ -5,6 +5,16 @@ var TelegramBot = require('node-telegram-bot-api')
 var bot = new TelegramBot(apiKeys.telegramKey, { polling: true })
 var nusmodsApi = require('./nusmodsApiModule.js')
 var newUsers = []
+var oddWeek = []
+var evenWeek = []
+
+const numOfDays = 5
+const numOfHours = 16
+const dayMonday = 0
+const dayTuesday = 1
+const dayWednesday = 2
+const dayThursday = 3
+const dayFriday = 4
 
 bot.on('message', (msg) => {
   // console.log(msg);
@@ -114,7 +124,9 @@ function parseLongUrl (longUrl, msg) {
           }
 
           // TODO: from the results and parsed mods, find the time slots to add in database
-          getTimeSlots(parsedMods, values)
+          var timeSlots = getTimeSlots(parsedMods, values)
+          console.log('printing timeslots')
+          console.log(timeSlots)
         })
       }
     }
@@ -174,6 +186,9 @@ function parseModStr (inputStr) {
 }
 
 function getTimeSlots (parsedMods, values) {
+  var len = numOfDays * numOfHours
+  var results = new Array(len).fill('0')
+
   for (var j = 0; j < parsedMods.length; j++) {
     var oneMod = parsedMods[j]
     for (var k = 0; k < oneMod.moduleSlots.length; k++) {
@@ -191,12 +206,23 @@ function getTimeSlots (parsedMods, values) {
           // console.log('one time slot')
           // console.log(oneTimeSlot)
           // add start and time end to database
-          // var startTime = oneTimeSlot.StartTime
-          // var endTime = oneTimeSlot.EndTime
+          var startTime = oneTimeSlot.StartTime
+          var endTime = oneTimeSlot.EndTime
+          var day = oneTimeSlot.DayText
+          var weekType = oneTimeSlot.WeekText
+
+          results = getSlotArray(startTime, endTime, day, results)
         }
       }
     }
   }
+
+  if (weekType === 'Even Week') {
+    evenWeek = results
+  } else if (weekType === 'Odd Week') {
+    oddWeek = results
+  }
+  return results
 }
 
 function getSlotType (slotType) {
@@ -218,6 +244,72 @@ function getSlotType (slotType) {
   }
 
   return slotType
+}
+
+function getSlotArray (startTime, endTime, day, results) {
+  var timeArray = ['0800', '0900', '1000', '1100', '1200', '1300', '1400', '1500', '1600', '1700', '1800', '1900', '2000', '2100', '2200', '2300', '0000']
+  var startTimeFound = false
+  var index = getSlotPositionByDay(day)
+  var rowPosition = index * numOfHours
+
+  for (var i = 0; i < (timeArray.length - 1); i++) {
+    var timeTableStart = timeArray[i]
+    var timeTableEnd = timeArray[i + 1]
+    // console.log(timeTableStart, timeTableEnd)
+    // console.log(startTime, endTime)
+
+    var position = rowPosition + i
+
+    // finding the starting slot
+    if (startTime >= timeTableStart && !startTimeFound && startTime < timeTableEnd) {
+      results[position] = '1'
+
+      if (endTime <= timeTableEnd) {
+        // for one slot
+        return results
+      } else {
+        // span over more than one slot
+        startTimeFound = true
+        continue
+      }
+    } else if (startTimeFound) {
+      // finding the ending slot
+      results[position] = '1'
+      if (endTime <= timeTableEnd) {
+        // found the end time slot
+        // console.log(endTime, timeTableEnd)
+        return results
+      }
+    } else {
+      continue
+    }
+  }
+  return results
+}
+
+function getSlotPositionByDay (day) {
+  var index = -1
+  switch (day) {
+    case 'Monday':
+      index = dayMonday
+      break
+    case 'Tuesday':
+      index = dayTuesday
+      break
+    case 'Wednesday':
+      index = dayWednesday
+      break
+    case 'Thursday':
+      index = dayThursday
+      break
+    case 'Friday':
+      index = dayFriday
+      break
+    default:
+      console.log('unable to find the day')
+  }
+
+  return index
 }
 
 // unused functions for now
