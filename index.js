@@ -124,9 +124,10 @@ function parseLongUrl (longUrl, msg) {
           }
 
           // TODO: from the results and parsed mods, find the time slots to add in database
-          var timeSlots = getTimeSlots(parsedMods, values)
+          getTimeSlots(parsedMods, values)
           console.log('printing timeslots')
-          console.log(timeSlots)
+          console.log(evenWeek)
+          console.log(oddWeek)
         })
       }
     }
@@ -187,7 +188,9 @@ function parseModStr (inputStr) {
 
 function getTimeSlots (parsedMods, values) {
   var len = numOfDays * numOfHours
-  var results = new Array(len).fill('0')
+  // var results = new Array(len).fill('0')
+  evenWeek = new Array(len).fill('0')
+  oddWeek = new Array(len).fill('0')
 
   for (var j = 0; j < parsedMods.length; j++) {
     var oneMod = parsedMods[j]
@@ -211,18 +214,11 @@ function getTimeSlots (parsedMods, values) {
           var day = oneTimeSlot.DayText
           var weekType = oneTimeSlot.WeekText
 
-          results = getSlotArray(startTime, endTime, day, results)
+          getSlotArray(startTime, endTime, day, weekType, evenWeek, oddWeek)
         }
       }
     }
   }
-
-  if (weekType === 'Even Week') {
-    evenWeek = results
-  } else if (weekType === 'Odd Week') {
-    oddWeek = results
-  }
-  return results
 }
 
 function getSlotType (slotType) {
@@ -246,7 +242,7 @@ function getSlotType (slotType) {
   return slotType
 }
 
-function getSlotArray (startTime, endTime, day, results) {
+function getSlotArray (startTime, endTime, day, weekType, evenWeek, oddWeek) {
   var timeArray = ['0800', '0900', '1000', '1100', '1200', '1300', '1400', '1500', '1600', '1700', '1800', '1900', '2000', '2100', '2200', '2300', '0000']
   var startTimeFound = false
   var index = getSlotPositionByDay(day)
@@ -262,11 +258,11 @@ function getSlotArray (startTime, endTime, day, results) {
 
     // finding the starting slot
     if (startTime >= timeTableStart && !startTimeFound && startTime < timeTableEnd) {
-      results[position] = '1'
+      checkWeekType(weekType, evenWeek, oddWeek, position)
 
       if (endTime <= timeTableEnd) {
         // for one slot
-        return results
+        break
       } else {
         // span over more than one slot
         startTimeFound = true
@@ -274,17 +270,16 @@ function getSlotArray (startTime, endTime, day, results) {
       }
     } else if (startTimeFound) {
       // finding the ending slot
-      results[position] = '1'
+      checkWeekType(weekType, evenWeek, oddWeek, position)
       if (endTime <= timeTableEnd) {
         // found the end time slot
         // console.log(endTime, timeTableEnd)
-        return results
+        break
       }
     } else {
       continue
     }
   }
-  return results
 }
 
 function getSlotPositionByDay (day) {
@@ -310,6 +305,17 @@ function getSlotPositionByDay (day) {
   }
 
   return index
+}
+
+function checkWeekType (weekType, evenWeek, oddWeek, position) {
+  if (weekType === 'Even Week') {
+    evenWeek[position] = '1'
+  } else if (weekType === 'Odd Week') {
+    oddWeek[position] = '1'
+  } else if (weekType === 'Every Week') {
+    evenWeek[position] = '1'
+    oddWeek[position] = '1'
+  }
 }
 
 // unused functions for now
