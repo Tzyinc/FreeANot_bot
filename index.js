@@ -258,7 +258,7 @@ function getSlotArray (startTime, endTime, day, weekType, evenWeek, oddWeek) {
 
     // finding the starting slot
     if (startTime >= timeTableStart && !startTimeFound && startTime < timeTableEnd) {
-      checkWeekType(weekType, evenWeek, oddWeek, position)
+      changeSlot(weekType, evenWeek, oddWeek, position)
 
       if (endTime <= timeTableEnd) {
         // for one slot
@@ -270,7 +270,7 @@ function getSlotArray (startTime, endTime, day, weekType, evenWeek, oddWeek) {
       }
     } else if (startTimeFound) {
       // finding the ending slot
-      checkWeekType(weekType, evenWeek, oddWeek, position)
+      changeSlot(weekType, evenWeek, oddWeek, position)
       if (endTime <= timeTableEnd) {
         // found the end time slot
         // console.log(endTime, timeTableEnd)
@@ -307,7 +307,7 @@ function getSlotPositionByDay (day) {
   return index
 }
 
-function checkWeekType (weekType, evenWeek, oddWeek, position) {
+function changeSlot (weekType, evenWeek, oddWeek, position) {
   if (weekType === 'Even Week') {
     evenWeek[position] = '1'
   } else if (weekType === 'Odd Week') {
