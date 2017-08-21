@@ -19,7 +19,7 @@ db.serialize(function () {
   db.each('SELECT * FROM user', function (err, row) {
     console.log(row)
     if (err) {
-      console.log(err)
+      console.error(err)
     }
   })
 })
