@@ -5,8 +5,6 @@ var TelegramBot = require('node-telegram-bot-api')
 var bot = new TelegramBot(apiKeys.telegramKey, { polling: true })
 var nusmodsApi = require('./nusmodsApiModule.js')
 var newUsers = []
-var oddWeek = []
-var evenWeek = []
 
 const numOfDays = 5
 const numOfHours = 16
@@ -124,7 +122,13 @@ function parseLongUrl (longUrl, msg) {
           }
 
           // TODO: from the results and parsed mods, find the time slots to add in database
-          getTimeSlots(parsedMods, values)
+          var oddWeek = []
+          var evenWeek = []
+          var len = numOfDays * numOfHours
+          evenWeek = new Array(len).fill('0')
+          oddWeek = new Array(len).fill('0')
+
+          getTimeSlots(parsedMods, values, evenWeek, oddWeek)
           console.log('printing timeslots')
           console.log(evenWeek)
           console.log(oddWeek)
@@ -186,12 +190,7 @@ function parseModStr (inputStr) {
   return modList
 }
 
-function getTimeSlots (parsedMods, values) {
-  var len = numOfDays * numOfHours
-  // var results = new Array(len).fill('0')
-  evenWeek = new Array(len).fill('0')
-  oddWeek = new Array(len).fill('0')
-
+function getTimeSlots (parsedMods, values, evenWeek, oddWeek) {
   for (var j = 0; j < parsedMods.length; j++) {
     var oneMod = parsedMods[j]
     for (var k = 0; k < oneMod.moduleSlots.length; k++) {
