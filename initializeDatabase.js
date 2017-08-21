@@ -2,21 +2,8 @@ var sqlite3 = require('sqlite3').verbose()
 var db = new sqlite3.Database('freeAnot.tb')
 
 db.serialize(function () {
-  db.each('SELECT * FROM user', function (err, row) {
-    if (err) {
-      console.error(err)
-    } else {
-      db.run('DROP TABLE user')
-    }
-  })
-  db.each('SELECT * FROM userGroupRelations', function (err, row) {
-    if (err) {
-      console.error(err)
-    } else {
-      db.run('DROP TABLE userGroupRelations')
-    }
-  })
-
+  db.run('DROP TABLE IF EXISTS user')
+  db.run('DROP TABLE IF EXISTS userGroupRelations')
   db.run('CREATE TABLE user ' +
     '(userId        INT           NOT NULL  PRIMARY KEY,' +
     'firstname      VARCHAR(255)  NOT NULL,' +
