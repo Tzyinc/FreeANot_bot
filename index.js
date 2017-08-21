@@ -4,6 +4,7 @@ var apiKeys = JSON.parse(fs.readFileSync('apiKeys.json', 'utf8'))
 var TelegramBot = require('node-telegram-bot-api')
 var bot = new TelegramBot(apiKeys.telegramKey, { polling: true })
 var nusmodsApi = require('./nusmodsApiModule.js')
+var sqliteApi = require('./sqlLiteModule.js')
 var newUsers = []
 var oddWeek = []
 var evenWeek = []
@@ -325,6 +326,7 @@ function handlePublicTest (msg) {
 
 function handlePrivateTest (msg) {
   console.log('private test!')
+  console.log(sqliteApi.selectAll())
 }
 
 // overload for String
