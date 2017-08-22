@@ -294,16 +294,15 @@ function freeIgnoreSchool (msg) {
     var time = new Date()
     var slot = getCurrentSlot(time)
     for (var i = 0; i < values.length; i++) {
-      var student = values[i]
       if (isEvenWeek(time)) {
-        if (student.eventimetable.charAt(slot) === '0') {
+        if (values[i].eventimetable.charAt(slot) === '0') {
           // free
-          freeStudents.push(student)
+          freeStudents.push(values[i])
         }
       } else {
-        if (student.oddtimetable.charAt(slot) === '0') {
+        if (values[i].oddtimetable.charAt(slot) === '0') {
           // free
-          freeStudents.push(student)
+          freeStudents.push(values[i])
         }
       }
     }
@@ -328,19 +327,18 @@ function inSchoolToday (msg) {
     var slot = getCurrentSlot(time)
     var day = time.getDay() - 1
     for (var i = 0; i < values.length; i++) {
-      var student = values[i]
       if (isEvenWeek(time)) {
-        var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
         console.log(subStr)
-        if ((subStr.indexOf('1') > -1) && (student.eventimetable.charAt(slot) === '0')) {
+        if ((subStr.indexOf('1') > -1) && (values[i].eventimetable.charAt(slot) === '0')) {
           // free
-          freeStudents.push(student)
+          freeStudents.push(values[i])
         }
       } else {
-        subStr = student.oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        if ((subStr.indexOf('1') > -1) && (student.oddtimetable.charAt(slot) === '0')) {
+        subStr = values[i].oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        if ((subStr.indexOf('1') > -1) && (values[i].oddtimetable.charAt(slot) === '0')) {
           // free
-          freeStudents.push(student)
+          freeStudents.push(values[i])
         }
       }
     }
@@ -364,16 +362,16 @@ function freeNow (msg) {
     var time = new Date()
     var day = time.getDay() - 1
     for (var i = 0; i < values.length; i++) {
-      var student = values[i]
+      console.log('checking',values[i])
       if (isEvenWeek(time)) {
-        var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
         if (subStr.indexOf('1') > -1) {
-          freeStudents.push(student)
+          freeStudents.push(values[i])
         }
       } else {
-        subStr = student.oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        subStr = values[i].oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
         if (subStr.indexOf('1') > -1) {
-          freeStudents.push(student)
+          freeStudents.push(values[i])
         }
       }
     }
