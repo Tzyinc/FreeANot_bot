@@ -46,8 +46,8 @@ function handlePublic (msg) {
 }
 
 function handlePublicStart (msg) {
-  // TODO: if chat record exists, add user to the chat. else create chat and add user
-  console.log(msg)
+  sqliteApi.insertUserToChat(msg.from.id, msg.chat.id)
+  bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
 }
 
 function handlePrivateStart (msg) {
@@ -80,24 +80,13 @@ function parseLongUrl (longUrl, msg) {
         var semester = parseModuleStrings[0].substring(3)
         var modInfo = parseModuleStrings[1].replaceAll('%5B', '[').replaceAll('%5D', ']')
         // console.log(acadYear, semester, modInfo)
-        toSend += 'Success!'
         var parsedMods = parseModStr(modInfo)
         var promises = []
         for (var i = 0; i < parsedMods.length; i++) {
-          // console.log('printing parsedMods')
-          // console.log(parsedMods[i])
           promises.push(nusmodsApi.getModuleInformation(acadYear, semester, parsedMods[i].moduleCode))
         }
+        toSend = 'Processing your link!'
         Promise.all(promises).then(values => {
-          // console.log('printing values')
-          // console.log(values)
-          /*
-          for (var l = 0; l < values.length; l++) {
-            var oneValue = values[l]
-            // console.log(oneValue.Timetable)
-          }
-          */
-          // TODO: from the results and parsed mods, find the time slots to add in database
           var oddWeek = []
           var evenWeek = []
           var len = numOfDays * numOfHours
@@ -106,11 +95,8 @@ function parseLongUrl (longUrl, msg) {
 
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
           sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username)
-          console.log('id', msg.from.id)
-          console.log('first_name', msg.from.first_name)
-          console.log('even week', evenWeek.join(''))
-          console.log('odd week', oddWeek.join(''))
-          console.log('username', msg.from.username)
+          toSend = 'Your timetable has been uploaded!'
+          bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
         })
       }
     }
@@ -298,6 +284,12 @@ function changeSlot (weekType, evenWeek, oddWeek, position) {
 
 // unused functions for now
 function handlePublicTest (msg) {
+  var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
+  testPromise.then(function (value) {
+    console.log('promiseval', value)
+    //bot.sendMessage(msg.chat.id, value, {parse_mode: 'HTML'})
+  })
+
   console.log(msg)
 }
 

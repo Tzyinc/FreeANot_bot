@@ -3,13 +3,40 @@ var db = new sqlite3.Database('freeAnot.tb')
 const constraintErr = 'SQLITE_CONSTRAINT'
 
 function getAllDataFromUsers () {
-  db.each('SELECT * FROM user', function (err, row) {
+  db.all('SELECT * FROM user', function (err, row) {
     if (err) {
       console.error(err)
       return err
     }
     console.log(row)
     return row
+  })
+}
+
+function getAllUsersInGroup (groupId) {
+  var userPromise = new Promise(function (resolve, reject) {
+    db.all('SELECT * FROM userGroupRelations WHERE groupId = $groupId', {
+      $groupId: groupId
+    }, function (err, row) {
+      if (err) {
+        console.error(err)
+        reject(err)
+      }
+      console.log(row)
+      resolve(row)
+    })
+  })
+  return userPromise
+}
+
+function addUserToChat (userId, chatId) {
+  db.run('INSERT INTO userGroupRelations VALUES($userId, $groupId)', {
+    $userId: userId,
+    $groupId: chatId
+  }, function (err) {
+    if (err) {
+      console.error(err)
+    }
   })
 }
 
@@ -88,5 +115,7 @@ function updateStudentToUsers (id, fName, oTime, eTime, uName) {
 
 module.exports = {
   selectAll: getAllDataFromUsers,
-  insertUser: insertStudentToUsers
+  insertUser: insertStudentToUsers,
+  insertUserToChat: addUserToChat,
+  getUsersInChat: getAllUsersInGroup
 }
