@@ -15,7 +15,10 @@ function getAllDataFromUsers () {
 
 function getAllUsersInGroup (groupId) {
   var userPromise = new Promise(function (resolve, reject) {
-    db.all('SELECT * FROM userGroupRelations WHERE groupId = $groupId', {
+    db.all('SELECT * ' +
+    'FROM user ' +
+    'WHERE EXISTS ' +
+    '(SELECT * FROM userGroupRelations WHERE groupId = $groupId)', {
       $groupId: groupId
     }, function (err, row) {
       if (err) {
@@ -76,11 +79,7 @@ function insertStudentToUsers (id, fName, oTime, eTime, uName) {
     })
   }
 }
-/*
-UPDATE Customers
-SET ContactName = 'Alfred Schmidt', City= 'Frankfurt'
-WHERE CustomerID = 1
-*/
+
 function updateStudentToUsers (id, fName, oTime, eTime, uName) {
   if (uName) {
     db.run('UPDATE user SET ' +

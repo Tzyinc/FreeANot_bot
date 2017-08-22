@@ -1,6 +1,8 @@
 var fs = require('fs')
 var urlExpander = require('expand-url')
 var apiKeys = JSON.parse(fs.readFileSync('apiKeys.json', 'utf8'))
+var acadCalandar = JSON.parse(fs.readFileSync('academicCalendar.json', 'utf8'))
+const AcadYear = '2017/2018'
 var TelegramBot = require('node-telegram-bot-api')
 var bot = new TelegramBot(apiKeys.telegramKey, { polling: true })
 var nusmodsApi = require('./nusmodsApiModule.js')
@@ -47,7 +49,6 @@ function handlePublic (msg) {
 
 function handlePublicStart (msg) {
   sqliteApi.insertUserToChat(msg.from.id, msg.chat.id)
-  // TODO: check if user exist in user table first!
   bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
 }
 
@@ -106,29 +107,15 @@ function parseLongUrl (longUrl, msg) {
   return toSend
 }
 
-// parses the string from the url and converts into a json in the format
-/*
-{ moduleCode: 'SC2212',
-  moduleSlots:
-   [ { slotType: 'LEC', slotValue: '1' },
-     { slotType: 'TUT', slotValue: 'D1' } ] }
-{ moduleCode: 'SSS1207',
-  moduleSlots: [ { slotType: 'LEC', slotValue: 'SL1' } ] }
-{ moduleCode: 'CS2102',
-  moduleSlots:
-   [ { slotType: 'LEC', slotValue: '1' },
-     { slotType: 'TUT', slotValue: '12' } ] }
-
-*/
+// parses the string from the url and converts into a json
 function parseModStr (inputStr) {
   var modList = []
   var inputArr = inputStr.split('&')
   for (var i = 0; i < inputArr.length; i++) {
     var slotInfo = inputArr[i]
     var moduleCode = slotInfo.split('[')[0]
-    var slotType = slotInfo.split('[').pop().split(']').shift() // returns 'two'
+    var slotType = slotInfo.split('[').pop().split(']').shift()
     var slotValue = slotInfo.split('=').pop()
-    // console.log(moduleCode, slotType, slotValue)
     var modExists = false
     for (var j = 0; j < modList.length; j++) {
       var toCompareMod = modList[j]
@@ -164,15 +151,11 @@ function getTimeSlots (parsedMods, values, evenWeek, oddWeek) {
       var slotValue = oneMod.moduleSlots[k].slotValue
       //  find what type it is
       slotType = getSlotType(slotType)
-      // console.log('slot type is ');
-      // console.log(slotType);
       var timing = values[j].Timetable
       //  get all the time associated to the slot type
       for (var m = 0; m < timing.length; m++) {
         var oneTimeSlot = timing[m]
         if (oneTimeSlot.LessonType === slotType && oneTimeSlot.ClassNo === slotValue) {
-          // console.log('one time slot')
-          // console.log(oneTimeSlot)
           // add start and time end to database
           var startTime = oneTimeSlot.StartTime
           var endTime = oneTimeSlot.EndTime
@@ -216,8 +199,6 @@ function getSlotArray (startTime, endTime, day, weekType, evenWeek, oddWeek) {
   for (var i = 0; i < (timeArray.length - 1); i++) {
     var timeTableStart = timeArray[i]
     var timeTableEnd = timeArray[i + 1]
-    // console.log(timeTableStart, timeTableEnd)
-    // console.log(startTime, endTime)
 
     var position = rowPosition + i
 
@@ -238,7 +219,6 @@ function getSlotArray (startTime, endTime, day, weekType, evenWeek, oddWeek) {
       changeSlot(weekType, evenWeek, oddWeek, position)
       if (endTime <= timeTableEnd) {
         // found the end time slot
-        // console.log(endTime, timeTableEnd)
         break
       }
     } else {
@@ -286,17 +266,62 @@ function changeSlot (weekType, evenWeek, oddWeek, position) {
 // unused functions for now
 function handlePublicTest (msg) {
   var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
-  testPromise.then(function (value) {
-    console.log('promiseval', value)
-    //bot.sendMessage(msg.chat.id, value, {parse_mode: 'HTML'})
+  testPromise.then(function (values) {
+    console.log('promiseval', values)
+    var time = new Date()
+    var slot = getCurrentSlot(time)
+    for (var i = 0; i < values.length; i++) {
+      if (isEvenWeek) {
+      } else {
+
+      }
+    }
   })
 
   console.log(msg)
 }
 
+function isEvenWeek (today) {
+  const divideWeek = 604800000
+  var acadYear = acadCalandar[AcadYear]
+  console.log(acadCalandar)
+  console.log(acadYear)
+  var sem1 = new Date()
+  var sem2 = new Date()
+  sem1.setFullYear(acadYear[`1`].start[0], acadYear[`1`].start[1], acadYear[`1`].start[2])
+  sem2.setFullYear(acadYear[`2`].start[0], acadYear[`2`].start[1], acadYear[`2`].start[2])
+  if (today >= sem2) {
+    // settle sem 2
+    var week = Math.round((today - sem2) / divideWeek) + 1
+    console.log('sem2', week)
+    return week % 2 === 0
+  } else {
+    // settle sem 1
+    week = Math.round((today - sem1) / divideWeek) + 1
+    console.log('sem1', week)
+    return week % 2 === 0
+  }
+}
+
+function getCurrentSlot (time) {
+  var day = time.getDay() - 1
+  var timeStr = ('0' + time.getHours()).slice(-2) + '00'
+
+  var timeArray = ['0800', '0900', '1000', '1100', '1200', '1300', '1400', '1500', '1600', '1700', '1800', '1900', '2000', '2100', '2200', '2300', '0000']
+  var slot = -1
+  for (var i = 0; i < timeArray.length; i++) {
+    if (timeStr === timeArray[i]) {
+      slot = i + (numOfHours * day)
+    }
+  }
+  return slot
+}
+
 function handlePrivateTest (msg) {
+  var time = new Date()
   console.log('private test!')
-  console.log(sqliteApi.selectAll())
+  console.log(isEvenWeek(time))
+  // console.log(sqliteApi.selectAll())
 }
 
 // overload for String
