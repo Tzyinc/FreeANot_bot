@@ -6,8 +6,7 @@
   "scripts": {
     "pretest": "node initializeDatabase.js",
     "test": "node index.js",
-    "prestart": "env TZ='Asia/Singapore' ",
-    "start": "node index.js"
+    "start": "env TZ='Asia/Singapore' node index.js"
   },
   "author": "",
   "license": "ISC",
