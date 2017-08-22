@@ -293,23 +293,26 @@ function freeIgnoreSchool (msg) {
     console.log('freeIgnoreSchool', values)
     var time = new Date()
     var slot = getCurrentSlot(time)
-    for (var i = 0; i < values.length; i++) {
-      if (isEvenWeek(time)) {
-        console.log(time)
-        console.log(slot)
-        console.log(values[i].eventimetable.charAt(slot), '0')
-        if (values[i].eventimetable.charAt(slot) === '0') {
-          // free
-          console.log('testVal', values[i])
-          freeStudents.push(values[i])
-        }
-      } else {
-        if (values[i].oddtimetable.charAt(slot) === '0') {
-          // free
-          freeStudents.push(values[i])
+    if (slot === -1) {
+      for (var i = 0; i < values.length; i++) {
+        if (isEvenWeek(time)) {
+          console.log(time)
+          console.log(slot)
+          console.log(values[i].eventimetable.charAt(slot), '0')
+          if (values[i].eventimetable.charAt(slot) === '0') {
+            // free
+            console.log('testVal', values[i])
+            freeStudents.push(values[i])
+          }
+        } else {
+          if (values[i].oddtimetable.charAt(slot) === '0') {
+            // free
+            freeStudents.push(values[i])
+          }
         }
       }
     }
+
     if (freeStudents.length <= 0) {
       bot.sendMessage(msg.chat.id, 'No one is free now :(', {parse_mode: 'HTML'})
     } else {
@@ -329,23 +332,26 @@ function inSchoolToday (msg) {
     console.log('inSchoolToday', values)
     var time = new Date()
     var slot = getCurrentSlot(time)
-    var day = time.getDay() - 1
-    for (var i = 0; i < values.length; i++) {
-      if (isEvenWeek(time)) {
-        var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        console.log(subStr)
-        if ((subStr.indexOf('1') > -1) && (values[i].eventimetable.charAt(slot) === '0')) {
-          // free
-          freeStudents.push(values[i])
-        }
-      } else {
-        subStr = values[i].oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        if ((subStr.indexOf('1') > -1) && (values[i].oddtimetable.charAt(slot) === '0')) {
-          // free
-          freeStudents.push(values[i])
+    if (slot === -1) {
+      var day = time.getUTCDay() - 1
+      for (var i = 0; i < values.length; i++) {
+        if (isEvenWeek(time)) {
+          var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+          console.log(subStr)
+          if ((subStr.indexOf('1') > -1) && (values[i].eventimetable.charAt(slot) === '0')) {
+            // free
+            freeStudents.push(values[i])
+          }
+        } else {
+          subStr = values[i].oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+          if ((subStr.indexOf('1') > -1) && (values[i].oddtimetable.charAt(slot) === '0')) {
+            // free
+            freeStudents.push(values[i])
+          }
         }
       }
     }
+
     if (freeStudents.length <= 0) {
       bot.sendMessage(msg.chat.id, 'No one is in school today :(', {parse_mode: 'HTML'})
     } else {
@@ -414,8 +420,8 @@ function isEvenWeek (today) {
 
 function getCurrentSlot (time) {
   var day = time.getDay() - 1
-  var timeStr = ('0' + time.getHours()).slice(-2) + '00'
-  console.log(timeStr)
+  var timeStr = ('0' + time.getHour()).slice(-2) + '00'
+  // console.log('slot', timeStr)
   var timeArray = ['0800', '0900', '1000', '1100', '1200', '1300', '1400', '1500', '1600', '1700', '1800', '1900', '2000', '2100', '2200', '2300', '0000']
   var slot = -1
   for (var i = 0; i < timeArray.length; i++) {
