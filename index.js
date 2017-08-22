@@ -331,6 +331,7 @@ function inSchoolToday (msg) {
       var student = values[i]
       if (isEvenWeek(time)) {
         var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        console.log(subStr)
         if ((subStr.includes('1')) && (student.eventimetable.charAt(slot) === '0')) {
           // free
           freeStudents.push(student)
