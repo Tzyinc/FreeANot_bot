@@ -47,6 +47,7 @@ function handlePublic (msg) {
 
 function handlePublicStart (msg) {
   sqliteApi.insertUserToChat(msg.from.id, msg.chat.id)
+  // TODO: check if user exist in user table first!
   bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
 }
 
