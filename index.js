@@ -17,7 +17,6 @@ const dayThursday = 3
 const dayFriday = 4
 
 bot.on('message', (msg) => {
-  // console.log(msg);
   if (msg.text) {
     if (msg.chat.type.toLowerCase().indexOf('private') === 0) {
       handlePrivate(msg)
@@ -40,7 +39,7 @@ function handlePrivate (msg) {
 
 // handles messages sent in a group chat
 function handlePublic (msg) {
-  if (msg.text.toLowerCase().indexOf('/start') === 0) {
+  if (msg.text.toLowerCase().indexOf('/join') === 0) {
     handlePublicStart(msg)
   } else if (msg.text.toLowerCase().indexOf('/test') === 0) {
     handlePublicTest(msg)
@@ -49,9 +48,14 @@ function handlePublic (msg) {
 
 function handlePublicStart (msg) {
   sqliteApi.insertUserToChat(msg.from.id, msg.chat.id).then(
-    bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
-  ).catch(
-    bot.sendMessage(msg.chat.id, 'Failed to add you into group!', {parse_mode: 'HTML'})
+    function (value) {
+      bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
+    },
+    function (err) {
+      if (err) {
+        bot.sendMessage(msg.chat.id, 'Failed to add you into group!', {parse_mode: 'HTML'})
+      }
+    }
   )
 }
 
@@ -84,7 +88,6 @@ function parseLongUrl (longUrl, msg) {
       if (parseModuleStrings.length === 2) {
         var semester = parseModuleStrings[0].substring(3)
         var modInfo = parseModuleStrings[1].replaceAll('%5B', '[').replaceAll('%5D', ']')
-        // console.log(acadYear, semester, modInfo)
         var parsedMods = parseModStr(modInfo)
         var promises = []
         for (var i = 0; i < parsedMods.length; i++) {
@@ -100,15 +103,21 @@ function parseLongUrl (longUrl, msg) {
 
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
           sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username).then(
-            bot.sendMessage(msg.chat.id, 'Your timetable has been uploaded!', {parse_mode: 'HTML'})
-          ).catch(
-            bot.sendMessage(msg.chat.id, 'Failed to upload timetable!', {parse_mode: 'HTML'})
+            function (value) {
+              if (value) {
+                bot.sendMessage(msg.chat.id, 'Your timetable has been uploaded!', {parse_mode: 'HTML'})
+              }
+            },
+            function (err) {
+              if (err) {
+                bot.sendMessage(msg.chat.id, 'Failed to upload timetable!', {parse_mode: 'HTML'})
+              }
+            }
           )
         })
       }
     }
   }
-  // console.log(urlSubStrs)
   return toSend
 }
 
@@ -189,7 +198,7 @@ function getSlotType (slotType) {
       slotType = 'Seminar-Style Module Class'
       break
     default:
-      console.log('cannot find slot type')
+      console.error('cannot find slot type')
   }
 
   return slotType
@@ -251,7 +260,7 @@ function getSlotPositionByDay (day) {
       index = dayFriday
       break
     default:
-      console.log('unable to find the day')
+      console.error('unable to find the day')
   }
 
   return index
@@ -272,26 +281,39 @@ function changeSlot (weekType, evenWeek, oddWeek, position) {
 function handlePublicTest (msg) {
   var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
   testPromise.then(function (values) {
+    var freeStudents = []
     console.log('promiseval', values)
     var time = new Date()
     var slot = getCurrentSlot(time)
     for (var i = 0; i < values.length; i++) {
-      if (isEvenWeek) {
-
+      var student = values[i]
+      if (isEvenWeek(time)) {
+        if (student.eventimetable.charAt(slot) === '0') {
+          // free
+          freeStudents.push(student)
+        }
       } else {
-
+        if (student.oddtimetable.charAt(slot) === '0') {
+          // free
+          freeStudents.push(student)
+        }
       }
     }
+    if (freeStudents.length <= 0) {
+      bot.sendMessage(msg.chat.id, 'No one is free now :(', {parse_mode: 'HTML'})
+    } else {
+      var toSend = '<b>Students who are free now:</b>'
+      for (i = 0; i < freeStudents.length; i++) {
+        toSend += '\n' + freeStudents[i].firstname
+      }
+      bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+    }
   })
-
-  console.log(msg)
 }
 
 function isEvenWeek (today) {
   const divideWeek = 604800000
   var acadYear = acadCalandar[AcadYear]
-  console.log(acadCalandar)
-  console.log(acadYear)
   var sem1 = new Date()
   var sem2 = new Date()
   sem1.setFullYear(acadYear[`1`].start[0], acadYear[`1`].start[1], acadYear[`1`].start[2])
@@ -299,12 +321,10 @@ function isEvenWeek (today) {
   if (today >= sem2) {
     // settle sem 2
     var week = Math.round((today - sem2) / divideWeek) + 1
-    console.log('sem2', week)
     return week % 2 === 0
   } else {
     // settle sem 1
     week = Math.round((today - sem1) / divideWeek) + 1
-    console.log('sem1', week)
     return week % 2 === 0
   }
 }
@@ -324,10 +344,7 @@ function getCurrentSlot (time) {
 }
 
 function handlePrivateTest (msg) {
-  var time = new Date()
   console.log('private test!')
-  console.log(isEvenWeek(time))
-  // console.log(sqliteApi.selectAll())
 }
 
 // overload for String

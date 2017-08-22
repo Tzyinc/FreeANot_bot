@@ -2,6 +2,9 @@ var sqlite3 = require('sqlite3').verbose()
 var db = new sqlite3.Database('freeAnot.tb')
 const constraintErr = 'SQLITE_CONSTRAINT'
 
+// enforce foreign key constraint
+db.run('PRAGMA foreign_keys = ON')
+
 function getAllDataFromUsers () {
   var p = new Promise(function (resolve, reject) {
     db.all('SELECT * FROM user', function (err, row) {
@@ -40,7 +43,7 @@ function addUserToChat (userId, chatId) {
       if (err) {
         reject(err)
       }
-      resolve()
+      resolve('success')
     })
   })
   return p
@@ -59,7 +62,7 @@ function insertStudentToUsers (id, fName, oTime, eTime, uName) {
         if (err) {
           if (err.code === constraintErr) {
             updateStudentToUsers(id, fName, oTime, eTime, uName).then(
-              resolve()
+              resolve('success')
             )
           } else {
             reject(err)
@@ -78,7 +81,7 @@ function insertStudentToUsers (id, fName, oTime, eTime, uName) {
         if (err) {
           if (err.code === constraintErr) {
             updateStudentToUsers(id, fName, oTime, eTime, uName).then(
-              resolve()
+              resolve('success')
             )
           } else {
             reject(err)
@@ -108,7 +111,7 @@ function updateStudentToUsers (id, fName, oTime, eTime, uName) {
         if (err) {
           reject(err)
         }
-        resolve()
+        resolve('success')
       })
     } else {
       db.run('UPDATE user SET ' +
@@ -124,7 +127,7 @@ function updateStudentToUsers (id, fName, oTime, eTime, uName) {
         if (err) {
           reject(err)
         }
-        resolve()
+        resolve('success')
       })
     }
   })
