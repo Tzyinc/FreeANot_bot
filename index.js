@@ -5,7 +5,6 @@ var TelegramBot = require('node-telegram-bot-api')
 var bot = new TelegramBot(apiKeys.telegramKey, { polling: true })
 var nusmodsApi = require('./nusmodsApiModule.js')
 var sqliteApi = require('./sqlLiteModule.js')
-var newUsers = []
 
 const numOfDays = 5
 const numOfHours = 16
@@ -52,45 +51,20 @@ function handlePublicStart (msg) {
 }
 
 function handlePrivateStart (msg) {
-  var newUser = {
-    telegramId: msg.from.id,
-    name: msg.from.first_name,
-    timetableUrl: ''
-  }
-  if (msg.from.username) {
-    newUser.username = msg.from.username
-  }
-  var exists = false
-  for (var i = 0; i < newUsers.length; i++) {
-    var checkUser = newUsers[i]
-    if (msg.from.id === checkUser.telegramId) {
-      exists = true
-    }
-  }
-  if (!exists) {
-    newUsers.push(newUser)
-  }
   var toSend = 'Please send me your nusmods timetable url!'
   bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
 }
 
 function handlePrivateOthers (msg) {
-  for (var i = 0; i < newUsers.length; i++) {
-    var checkUser = newUsers[i]
-    if (msg.from.id === checkUser.telegramId) {
-      console.log(msg)
-      urlExpander.expand(msg.text, function (err, longUrl) {
-        if (err) {
-          var toSend = 'There was some error deciphering your message, check if you\'ve copied the right url! '
-          bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
-        } else {
-          toSend = parseLongUrl(longUrl, msg)
-          // TODO: remove user from newusers array
-          bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
-        }
-      })
+  urlExpander.expand(msg.text, function (err, longUrl) {
+    if (err) {
+      var toSend = 'There was some error deciphering your message, check if you\'ve copied the right url! '
+      bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+    } else {
+      toSend = parseLongUrl(longUrl, msg)
+      bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
     }
-  }
+  })
 }
 
 // converts the shortened URL into a long url, replaces escaped characters to more readable characters
