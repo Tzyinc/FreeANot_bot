@@ -43,11 +43,11 @@ function handlePublic (msg) {
     handlePublicStart(msg)
   } else if (msg.text.toLowerCase().indexOf('/test') === 0) {
     handlePublicTest(msg)
-  } else if (msg.text.toLowerCase().indexOf('/whoFree') === 0) {
+  } else if (msg.text.toLowerCase().indexOf('/whofree') === 0) {
     freeNow(msg)
-  } else if (msg.text.toLowerCase().indexOf('/whoSchool') === 0) {
+  } else if (msg.text.toLowerCase().indexOf('/whoschool') === 0) {
     inSchoolToday(msg)
-  } else if (msg.text.toLowerCase().indexOf('/whoFreeNoSchool') === 0) {
+  } else if (msg.text.toLowerCase().indexOf('/whofreenoschool') === 0) {
     freeIgnoreSchool(msg)
   } else if (msg.text.toLowerCase().indexOf('/help') === 0) {
     var toSend = 'Tutorial:'
