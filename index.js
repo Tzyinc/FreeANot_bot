@@ -43,12 +43,12 @@ function handlePublic (msg) {
     handlePublicStart(msg)
   } else if (msg.text.toLowerCase().indexOf('/test') === 0) {
     handlePublicTest(msg)
+  } else if (msg.text.toLowerCase().indexOf('/whofreenoschool') === 0) {
+    freeIgnoreSchool(msg)
   } else if (msg.text.toLowerCase().indexOf('/whofree') === 0) {
     freeNow(msg)
   } else if (msg.text.toLowerCase().indexOf('/whoschool') === 0) {
     inSchoolToday(msg)
-  } else if (msg.text.toLowerCase().indexOf('/whofreenoschool') === 0) {
-    freeIgnoreSchool(msg)
   } else if (msg.text.toLowerCase().indexOf('/help') === 0) {
     var toSend = 'Tutorial:'
     toSend += '\n1. Start private chat with me'
@@ -332,13 +332,13 @@ function inSchoolToday (msg) {
       if (isEvenWeek(time)) {
         var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
         console.log(subStr)
-        if ((subStr.includes('1')) && (student.eventimetable.charAt(slot) === '0')) {
+        if ((subStr.indexOf('1') > -1) && (student.eventimetable.charAt(slot) === '0')) {
           // free
           freeStudents.push(student)
         }
       } else {
         subStr = student.oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        if ((subStr.includes('1')) && (student.oddtimetable.charAt(slot) === '0')) {
+        if ((subStr.indexOf('1') > -1) && (student.oddtimetable.charAt(slot) === '0')) {
           // free
           freeStudents.push(student)
         }
@@ -367,12 +367,12 @@ function freeNow (msg) {
       var student = values[i]
       if (isEvenWeek(time)) {
         var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        if (subStr.includes('1')) {
+        if (subStr.indexOf('1') > -1) {
           freeStudents.push(student)
         }
       } else {
         subStr = student.oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        if (subStr.includes('1')) {
+        if (subStr.indexOf('1') > -1) {
           freeStudents.push(student)
         }
       }
