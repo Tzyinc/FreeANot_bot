@@ -294,9 +294,12 @@ function freeIgnoreSchool (msg) {
     var time = new Date()
     var slot = getCurrentSlot(time)
     for (var i = 0; i < values.length; i++) {
+      console.log('checking', values[i])
       if (isEvenWeek(time)) {
+        console.log('isEvenWeek')
         if (values[i].eventimetable.charAt(slot) === '0') {
           // free
+          console.log('testVal', values[i])
           freeStudents.push(values[i])
         }
       } else {
@@ -362,7 +365,6 @@ function freeNow (msg) {
     var time = new Date()
     var day = time.getDay() - 1
     for (var i = 0; i < values.length; i++) {
-      console.log('checking',values[i])
       if (isEvenWeek(time)) {
         var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
         if (subStr.indexOf('1') > -1) {
