@@ -297,13 +297,13 @@ function freeIgnoreSchool (msg) {
       console.log('checking', values[i])
       if (isEvenWeek(time)) {
         console.log('isEvenWeek')
-        if (values[i].eventimetable.charAt(slot) === '0') {
+        if (values[i].eventimetable.charAt(slot) == '0') {
           // free
           console.log('testVal', values[i])
           freeStudents.push(values[i])
         }
       } else {
-        if (values[i].oddtimetable.charAt(slot) === '0') {
+        if (values[i].oddtimetable.charAt(slot) == '0') {
           // free
           freeStudents.push(values[i])
         }
@@ -333,13 +333,13 @@ function inSchoolToday (msg) {
       if (isEvenWeek(time)) {
         var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
         console.log(subStr)
-        if ((subStr.indexOf('1') > -1) && (values[i].eventimetable.charAt(slot) === '0')) {
+        if ((subStr.indexOf('1') > -1) && (values[i].eventimetable.charAt(slot) == '0')) {
           // free
           freeStudents.push(values[i])
         }
       } else {
         subStr = values[i].oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
-        if ((subStr.indexOf('1') > -1) && (values[i].oddtimetable.charAt(slot) === '0')) {
+        if ((subStr.indexOf('1') > -1) && (values[i].oddtimetable.charAt(slot) == '0')) {
           // free
           freeStudents.push(values[i])
         }
