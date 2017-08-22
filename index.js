@@ -38,11 +38,27 @@ function handlePrivate (msg) {
 }
 
 // handles messages sent in a group chat
+
+
+
 function handlePublic (msg) {
   if (msg.text.toLowerCase().indexOf('/join') === 0) {
     handlePublicStart(msg)
   } else if (msg.text.toLowerCase().indexOf('/test') === 0) {
     handlePublicTest(msg)
+  } else if (msg.text.toLowerCase().indexOf('/whoFree') === 0) {
+    freeNow(msg)
+  } else if (msg.text.toLowerCase().indexOf('/whoSchool') === 0) {
+    inSchoolToday(msg)
+  } else if (msg.text.toLowerCase().indexOf('/whoFreeNoSchool') === 0) {
+    freeIgnoreSchool(msg)
+  } else if (msg.text.toLowerCase().indexOf('/help') === 0) {
+    var toSend = 'Tutorial:'
+    toSend += '\n1. Start private chat with me'
+    toSend += '\n2. Enter your nusmods short url'
+    toSend += '\n3. type /join for whichever group you want to share your timetable with!'
+    toSend += '\n4. type /whoFree in a group to find out who\'s free!'
+    bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
   }
 }
 
@@ -376,9 +392,7 @@ function freeNow (msg) {
 }
 // unused functions for now
 function handlePublicTest (msg) {
-  freeIgnoreSchool(msg)
-  inSchoolToday(msg)
-  freeNow(msg)
+  console.log('public test')
 }
 
 function isEvenWeek (today) {
