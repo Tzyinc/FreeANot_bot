@@ -67,6 +67,8 @@ function insertStudentToUsers (id, fName, oTime, eTime, uName) {
           } else {
             reject(err)
           }
+        } else {
+          resolve('success')
         }
       })
     } else {
@@ -86,6 +88,8 @@ function insertStudentToUsers (id, fName, oTime, eTime, uName) {
           } else {
             reject(err)
           }
+        } else {
+          resolve('success')
         }
       })
     }

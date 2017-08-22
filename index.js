@@ -70,8 +70,7 @@ function handlePrivateOthers (msg) {
       var toSend = 'There was some error deciphering your message, check if you\'ve copied the right url! '
       bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
     } else {
-      toSend = parseLongUrl(longUrl, msg)
-      bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+      parseLongUrl(longUrl, msg)
     }
   })
 }
@@ -79,7 +78,6 @@ function handlePrivateOthers (msg) {
 // converts the shortened URL into a long url, replaces escaped characters to more readable characters
 function parseLongUrl (longUrl, msg) {
   var urlSubStrs = longUrl.split('/')
-  var toSend = ''
   if (urlSubStrs.length === 6) {
     if (urlSubStrs[2] === 'nusmods.com') {
       var acadYear = urlSubStrs[4]
@@ -93,14 +91,14 @@ function parseLongUrl (longUrl, msg) {
         for (var i = 0; i < parsedMods.length; i++) {
           promises.push(nusmodsApi.getModuleInformation(acadYear, semester, parsedMods[i].moduleCode))
         }
-        toSend = 'Processing your link!'
+
         Promise.all(promises).then(values => {
           var oddWeek = []
           var evenWeek = []
           var len = numOfDays * numOfHours
           evenWeek = new Array(len).fill('0')
           oddWeek = new Array(len).fill('0')
-
+          console.log('test')
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
           sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username).then(
             function (value) {
@@ -118,7 +116,6 @@ function parseLongUrl (longUrl, msg) {
       }
     }
   }
-  return toSend
 }
 
 // parses the string from the url and converts into a json
@@ -277,8 +274,7 @@ function changeSlot (weekType, evenWeek, oddWeek, position) {
   }
 }
 
-// unused functions for now
-function handlePublicTest (msg) {
+function freeIgnoreSchool (msg) {
   var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
   testPromise.then(function (values) {
     var freeStudents = []
@@ -309,6 +305,10 @@ function handlePublicTest (msg) {
       bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
     }
   })
+}
+// unused functions for now
+function handlePublicTest (msg) {
+  freeIgnoreSchool(msg)
 }
 
 function isEvenWeek (today) {
