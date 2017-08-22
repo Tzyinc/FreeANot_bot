@@ -48,8 +48,11 @@ function handlePublic (msg) {
 }
 
 function handlePublicStart (msg) {
-  sqliteApi.insertUserToChat(msg.from.id, msg.chat.id)
-  bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
+  sqliteApi.insertUserToChat(msg.from.id, msg.chat.id).then(
+    bot.sendMessage(msg.chat.id, 'Added to group!', {parse_mode: 'HTML'})
+  ).catch(
+    bot.sendMessage(msg.chat.id, 'Failed to add you into group!', {parse_mode: 'HTML'})
+  )
 }
 
 function handlePrivateStart (msg) {
@@ -96,9 +99,11 @@ function parseLongUrl (longUrl, msg) {
           oddWeek = new Array(len).fill('0')
 
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
-          sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username)
-          toSend = 'Your timetable has been uploaded!'
-          bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+          sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username).then(
+            bot.sendMessage(msg.chat.id, 'Your timetable has been uploaded!', {parse_mode: 'HTML'})
+          ).catch(
+            bot.sendMessage(msg.chat.id, 'Failed to upload timetable!', {parse_mode: 'HTML'})
+          )
         })
       }
     }
@@ -272,6 +277,7 @@ function handlePublicTest (msg) {
     var slot = getCurrentSlot(time)
     for (var i = 0; i < values.length; i++) {
       if (isEvenWeek) {
+
       } else {
 
       }
