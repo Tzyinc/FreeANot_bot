@@ -38,9 +38,6 @@ function handlePrivate (msg) {
 }
 
 // handles messages sent in a group chat
-
-
-
 function handlePublic (msg) {
   if (msg.text.toLowerCase().indexOf('/join') === 0) {
     handlePublicStart(msg)
