@@ -333,7 +333,7 @@ function inSchoolToday (msg) {
     if (freeStudents.length <= 0) {
       bot.sendMessage(msg.chat.id, 'No one is in school today :(', {parse_mode: 'HTML'})
     } else {
-      var toSend = '<b>Students who are in school now:</b>'
+      var toSend = '<b>Students have school today:</b>'
       for (i = 0; i < freeStudents.length; i++) {
         toSend += '\n' + freeStudents[i].firstname
       }
@@ -366,7 +366,7 @@ function freeNow (msg) {
     if (freeStudents.length <= 0) {
       bot.sendMessage(msg.chat.id, 'No one who has school is around today :(', {parse_mode: 'HTML'})
     } else {
-      var toSend = '<b>Students who are in school now:</b>'
+      var toSend = '<b>Students have school today and free now:</b>'
       for (i = 0; i < freeStudents.length; i++) {
         toSend += '\n' + freeStudents[i].firstname
       }
