@@ -98,7 +98,6 @@ function parseLongUrl (longUrl, msg) {
           var len = numOfDays * numOfHours
           evenWeek = new Array(len).fill('0')
           oddWeek = new Array(len).fill('0')
-          console.log('test')
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
           sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username).then(
             function (value) {
@@ -278,7 +277,7 @@ function freeIgnoreSchool (msg) {
   var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
   testPromise.then(function (values) {
     var freeStudents = []
-    console.log('promiseval', values)
+    console.log('freeIgnoreSchool', values)
     var time = new Date()
     var slot = getCurrentSlot(time)
     for (var i = 0; i < values.length; i++) {
@@ -306,9 +305,80 @@ function freeIgnoreSchool (msg) {
     }
   })
 }
+
+function inSchoolToday (msg) {
+  var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
+  testPromise.then(function (values) {
+    var freeStudents = []
+    console.log('inSchoolToday', values)
+    var time = new Date()
+    var slot = getCurrentSlot(time)
+    var day = time.getDay() - 1
+    for (var i = 0; i < values.length; i++) {
+      var student = values[i]
+      if (isEvenWeek(time)) {
+        var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        if ((subStr.includes('1')) && (student.eventimetable.charAt(slot) === '0')) {
+          // free
+          freeStudents.push(student)
+        }
+      } else {
+        subStr = student.oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        if ((subStr.includes('1')) && (student.oddtimetable.charAt(slot) === '0')) {
+          // free
+          freeStudents.push(student)
+        }
+      }
+    }
+    if (freeStudents.length <= 0) {
+      bot.sendMessage(msg.chat.id, 'No one is in school today :(', {parse_mode: 'HTML'})
+    } else {
+      var toSend = '<b>Students who are in school now:</b>'
+      for (i = 0; i < freeStudents.length; i++) {
+        toSend += '\n' + freeStudents[i].firstname
+      }
+      bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+    }
+  })
+}
+
+function freeNow (msg) {
+  var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
+  testPromise.then(function (values) {
+    var freeStudents = []
+    console.log('freeNow', values)
+    var time = new Date()
+    var day = time.getDay() - 1
+    for (var i = 0; i < values.length; i++) {
+      var student = values[i]
+      if (isEvenWeek(time)) {
+        var subStr = student.eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        if (subStr.includes('1')) {
+          freeStudents.push(student)
+        }
+      } else {
+        subStr = student.oddtimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        if (subStr.includes('1')) {
+          freeStudents.push(student)
+        }
+      }
+    }
+    if (freeStudents.length <= 0) {
+      bot.sendMessage(msg.chat.id, 'No one who has school is around today :(', {parse_mode: 'HTML'})
+    } else {
+      var toSend = '<b>Students who are in school now:</b>'
+      for (i = 0; i < freeStudents.length; i++) {
+        toSend += '\n' + freeStudents[i].firstname
+      }
+      bot.sendMessage(msg.chat.id, toSend, {parse_mode: 'HTML'})
+    }
+  })
+}
 // unused functions for now
 function handlePublicTest (msg) {
   freeIgnoreSchool(msg)
+  inSchoolToday(msg)
+  freeNow(msg)
 }
 
 function isEvenWeek (today) {
