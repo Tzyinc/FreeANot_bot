@@ -105,23 +105,24 @@ function parseLongUrl (longUrl, msg) {
       if (parseModuleStrings.length === 2) {
         var semester = parseModuleStrings[0].substring(3)
         var modInfo = parseModuleStrings[1].replaceAll('%5B', '[').replaceAll('%5D', ']')
-        console.log(acadYear, semester, modInfo)
+        // console.log(acadYear, semester, modInfo)
         toSend += 'Success!'
         var parsedMods = parseModStr(modInfo)
         var promises = []
         for (var i = 0; i < parsedMods.length; i++) {
-          console.log('printing parsedMods')
-          console.log(parsedMods[i])
+          // console.log('printing parsedMods')
+          // console.log(parsedMods[i])
           promises.push(nusmodsApi.getModuleInformation(acadYear, semester, parsedMods[i].moduleCode))
         }
         Promise.all(promises).then(values => {
-          console.log('printing values')
-          console.log(values)
+          // console.log('printing values')
+          // console.log(values)
+          /*
           for (var l = 0; l < values.length; l++) {
             var oneValue = values[l]
-            console.log(oneValue.Timetable)
+            // console.log(oneValue.Timetable)
           }
-
+          */
           // TODO: from the results and parsed mods, find the time slots to add in database
           var oddWeek = []
           var evenWeek = []
@@ -130,9 +131,12 @@ function parseLongUrl (longUrl, msg) {
           oddWeek = new Array(len).fill('0')
 
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
-          console.log('printing timeslots')
-          console.log(evenWeek)
-          console.log(oddWeek)
+          sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username)
+          console.log('id', msg.from.id)
+          console.log('first_name', msg.from.first_name)
+          console.log('even week', evenWeek.join(''))
+          console.log('odd week', oddWeek.join(''))
+          console.log('username', msg.from.username)
         })
       }
     }
@@ -163,7 +167,7 @@ function parseModStr (inputStr) {
     var moduleCode = slotInfo.split('[')[0]
     var slotType = slotInfo.split('[').pop().split(']').shift() // returns 'two'
     var slotValue = slotInfo.split('=').pop()
-    console.log(moduleCode, slotType, slotValue)
+    // console.log(moduleCode, slotType, slotValue)
     var modExists = false
     for (var j = 0; j < modList.length; j++) {
       var toCompareMod = modList[j]

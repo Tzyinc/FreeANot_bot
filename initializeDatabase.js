@@ -14,10 +14,9 @@ db.serialize(function () {
     ')')
 
   db.run('CREATE TABLE userGroupRelations ' +
-    '(rowId         INT           NOT NULL PRIMARY KEY ASC,' +
-    'userId         INT           NOT NULL,' +
-    // need odd week timetable and even timetable
+    '(userId         INT           NOT NULL,' +
     'groupId        INT           NOT NULL,' +
+    'PRIMARY KEY (userId, groupId),' +
     'FOREIGN KEY (userId) REFERENCES user(userId)' +
     ')')
 })
