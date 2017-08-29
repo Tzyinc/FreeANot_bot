@@ -21,8 +21,8 @@ function getAllUsersInGroup (groupId) {
   var p = new Promise(function (resolve, reject) {
     db.all('SELECT * ' +
     'FROM user ' +
-    'WHERE EXISTS ' +
-    '(SELECT * FROM userGroupRelations WHERE groupId = $groupId)', {
+    'WHERE userId in ' +
+    '(SELECT userId FROM userGroupRelations WHERE groupId = $groupId)', {
       $groupId: groupId
     }, function (err, row) {
       if (err) {

@@ -323,7 +323,7 @@ function freeIgnoreSchool (msg) {
   })
 }
 
-function inSchoolToday (msg) {
+function freeNow (msg) {
   var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
   testPromise.then(function (values) {
     var freeStudents = []
@@ -349,9 +349,9 @@ function inSchoolToday (msg) {
     }
 
     if (freeStudents.length <= 0) {
-      bot.sendMessage(msg.chat.id, 'No one is in school today :(', {parse_mode: 'HTML'})
+      bot.sendMessage(msg.chat.id, 'No one is free now :(', {parse_mode: 'HTML'})
     } else {
-      var toSend = '<b>Students have school today:</b>'
+      var toSend = '<b>Students have school today and Free Now:</b>'
       for (i = 0; i < freeStudents.length; i++) {
         toSend += '\n' + freeStudents[i].firstname
       }
@@ -360,16 +360,19 @@ function inSchoolToday (msg) {
   })
 }
 
-function freeNow (msg) {
+function inSchoolToday (msg) {
   var testPromise = sqliteApi.getUsersInChat(msg.chat.id)
   testPromise.then(function (values) {
     var freeStudents = []
-    console.log('freeNow', values)
     var time = new Date()
     var day = time.getDay() - 1
+    console.log('freeNow', values)
+    console.log('day', day)
+    console.log()
     for (var i = 0; i < values.length; i++) {
       if (isEvenWeek(time)) {
         var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
+        console.log('freeNow', subStr)
         if (subStr.indexOf('1') > -1) {
           freeStudents.push(values[i])
         }
@@ -381,9 +384,9 @@ function freeNow (msg) {
       }
     }
     if (freeStudents.length <= 0) {
-      bot.sendMessage(msg.chat.id, 'No one who has school is around today :(', {parse_mode: 'HTML'})
+      bot.sendMessage(msg.chat.id, 'No one who has school today :(', {parse_mode: 'HTML'})
     } else {
-      var toSend = '<b>Students have school today and free now:</b>'
+      var toSend = '<b>Students have school today:</b>'
       for (i = 0; i < freeStudents.length; i++) {
         toSend += '\n' + freeStudents[i].firstname
       }
