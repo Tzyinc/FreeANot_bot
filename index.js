@@ -280,7 +280,7 @@ function changeSlot (weekType, evenWeek, oddWeek, position) {
     evenWeek[position] = '1'
   } else if (weekType === 'Odd Week') {
     oddWeek[position] = '1'
-  } else if (weekType === 'Every Week') {
+  } else {
     evenWeek[position] = '1'
     oddWeek[position] = '1'
   }
