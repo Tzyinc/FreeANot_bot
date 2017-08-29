@@ -330,7 +330,7 @@ function inSchoolToday (msg) {
     console.log('inSchoolToday', values)
     var time = new Date()
     var slot = getCurrentSlot(time)
-    var day = time.getUTCDay() - 1
+    var day = time.getDay() - 1
     for (var i = 0; i < values.length; i++) {
       if (isEvenWeek(time)) {
         var subStr = values[i].eventimetable.substring(day * numOfHours, (day + 1) * numOfHours)
