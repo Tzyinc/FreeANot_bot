@@ -206,6 +206,9 @@ function getSlotType (slotType) {
     case 'SEM':
       slotType = 'Seminar-Style Module Class'
       break
+    case 'SEC':
+      slotType = 'Sectional Teaching'
+      break
     default:
       console.error('cannot find slot type')
   }
