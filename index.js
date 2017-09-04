@@ -415,11 +415,11 @@ function isEvenWeek (today) {
   if (today >= sem2) {
     // settle sem 2
     var week = Math.round((today - sem2) / divideWeek) + 1
-    return !(week % 2 === 0)
+    return week % 2 === 0
   } else {
     // settle sem 1
     week = Math.round((today - sem1) / divideWeek) + 1
-    return !(week % 2 === 0)
+    return week % 2 === 0
   }
 }
 
