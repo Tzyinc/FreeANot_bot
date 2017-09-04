@@ -209,6 +209,9 @@ function getSlotType (slotType) {
     case 'SEC':
       slotType = 'Sectional Teaching'
       break
+    case 'REC':
+      slotType = 'Recitation'
+      break
     default:
       console.error('cannot find slot type')
   }
