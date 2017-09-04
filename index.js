@@ -112,7 +112,7 @@ function parseLongUrl (longUrl, msg) {
           evenWeek = new Array(len).fill('0')
           oddWeek = new Array(len).fill('0')
           getTimeSlots(parsedMods, values, evenWeek, oddWeek)
-          sqliteApi.insertUser(msg.from.id, msg.from.first_name, evenWeek.join(''), oddWeek.join(''), msg.from.username).then(
+          sqliteApi.insertUser(msg.from.id, msg.from.first_name, oddWeek.join(''), evenWeek.join(''), msg.from.username).then(
             function (value) {
               if (value) {
                 bot.sendMessage(msg.chat.id, 'Your timetable has been uploaded!', {parse_mode: 'HTML'})
